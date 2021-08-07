@@ -62,6 +62,7 @@ public final class ConcurrentMergerUtils {
 		StringBuilder ex = new StringBuilder(512);
 		List<R> mergerList = new ArrayList<>(allTask * 2);
 
+		// Fix: 此处可以新增账号,譬如从MDC中获取
 		IntStream.range(0, allTask).forEach(val -> {
 			ListenableFuture<R> future = (ListenableFuture<R>) POOLTASKEXECUTOR.submitListenable(() -> {
 				int next = (taskDepth + (taskDepth * val));
@@ -71,12 +72,7 @@ public final class ConcurrentMergerUtils {
 
 			future.addCallback(r -> {
 				count.decrementAndGet();
-				try {
-					mergerList.add(r);
-				} catch (Exception e) {
-					ex.append(e.getMessage());
-					state.set(false);
-				}
+				mergerList.add(r);
 			}, thx -> {
 				ex.append(thx.getMessage());
 				state.set(false);
