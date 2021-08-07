@@ -10,16 +10,16 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-
 import micro.commons.annotation.ThreadSafe;
 import micro.commons.enums.ThreadContextEnum;
 import micro.commons.exception.BusinessRuntimeException;
+import micro.commons.log.MicroLogger;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.ToString;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -31,12 +31,17 @@ import org.apache.commons.lang3.StringUtils;
 public final class FeignRpcUtils {
 
 	/**
+	 * 日志组件
+	 */
+	private static final MicroLogger LOGGER = new MicroLogger(FeignRpcUtils.class);
+
+	/**
 	 * token
 	 **/
 	private static final String TOKEN = "token";
 
 	/**
-	 * SUCCESS
+	 * success
 	 **/
 	private static final String SUCCESS = "0000";
 
@@ -74,7 +79,7 @@ public final class FeignRpcUtils {
 	 * 解析响应数据
 	 *
 	 * @author gewx
-	 * @param respMap 响应结果集
+	 * @param responseMap 响应结果集
 	 * @return 解析后的数据
 	 **/
 	@SuppressWarnings("unchecked")
@@ -84,7 +89,7 @@ public final class FeignRpcUtils {
 		String msg = getString(respMap.get(Response.RESP_MSG.getCode()));
 		Object data = respMap.get(Response.RESP_DATA.getCode());
 		StringBuilder token = new StringBuilder();
-		Object headers = ThreadContextEnum.HEADER.removeAndGetVal();
+		Object headers = ThreadContextEnum.RESP_HEADER.removeAndGetVal();
 		if (headers instanceof Map) {
 			Map<String, Collection<String>> headerMap = (Map<String, Collection<String>>) headers;
 			Collection<String> list = headerMap.get(TOKEN);
@@ -92,6 +97,34 @@ public final class FeignRpcUtils {
 		}
 		Result result = new Result(success, code, msg, data, token.toString());
 		return result;
+	}
+
+	/**
+	 * 获取RPC结果集
+	 * 
+	 * @author liangd
+	 * @param methodName    方法名
+	 * @param map           RPC响应结果
+	 * @param typeReference 转换
+	 * @return 响应结果集
+	 **/
+	public static <T> T handleRpcResult(String methodName, Map<String, Object> map, TypeReference<T> typeReference) {
+		LOGGER.enter(methodName, StringUtils.EMPTY);
+		FeignRpcUtils.Result rpcResult = FeignRpcUtils.getResult(map);
+		LOGGER.info(methodName, "RPC调用响应, rpcResult: " + rpcResult);
+		if (rpcResult.isAllSuccess()) {
+			Object data = rpcResult.getData();
+			if (null != data) {
+				String rpcResultDataJson = JSONUtils.NON_NULL.toJSONString(data);
+				T t = JSONUtils.NON_NULL.toJavaObject(rpcResultDataJson, typeReference);
+				LOGGER.info(methodName, "RPC调用响应, rpcData: " + t);
+				LOGGER.exit(methodName, StringUtils.EMPTY);
+				return t;
+			}
+			return null;
+		} else {
+			throw new BusinessRuntimeException("RPC调用失败或未查询到相关信息~");
+		}
 	}
 
 	/**
@@ -126,7 +159,7 @@ public final class FeignRpcUtils {
 		}
 		return function.apply(rpcResult);
 	}
-	
+
 	/**
 	 * 设置token
 	 * 
@@ -139,7 +172,7 @@ public final class FeignRpcUtils {
 		collections.add(token);
 		Map<String, Collection<String>> headers = new HashMap<>();
 		headers.put(TOKEN, collections);
-		ThreadContextEnum.HEADER.setVal(headers);
+		ThreadContextEnum.REQ_HEADER.setVal(headers);
 	}
 
 	/**

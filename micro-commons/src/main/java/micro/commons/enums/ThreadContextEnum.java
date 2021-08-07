@@ -1,8 +1,5 @@
 package micro.commons.enums;
 
-import java.util.Collection;
-import java.util.Map;
-
 import com.alibaba.ttl.TransmittableThreadLocal;
 
 /**
@@ -13,14 +10,14 @@ import com.alibaba.ttl.TransmittableThreadLocal;
 public enum ThreadContextEnum {
 
 	/**
-	 * 分布式日志追踪traceId
-	 * **/
-	TRACEID(new TransmittableThreadLocal<String>()),
+	 * requestHeader Fegin请求头
+	 **/
+	REQ_HEADER(new TransmittableThreadLocal<>()),
 
 	/**
-	 * requestHeader
-	 * **/
-	HEADER(new TransmittableThreadLocal<Map<String, Collection<String>>>());
+	 * responseHeader Fegin响应头
+	 **/
+	RESP_HEADER(new TransmittableThreadLocal<>());
 
 	@SuppressWarnings("rawtypes")
 	ThreadContextEnum(ThreadLocal threadLocal) {
@@ -30,6 +27,16 @@ public enum ThreadContextEnum {
 	@SuppressWarnings("rawtypes")
 	private final ThreadLocal threadLocal;
 
+	/**
+	 * 删除并获取上下文信息
+	 * 
+	 * @author gewx
+	 * @return 线程本地副本内数据
+	 **/
+	public void remove() {
+		threadLocal.remove();
+	}
+	
 	/**
 	 * 删除并获取上下文信息
 	 * 
@@ -53,7 +60,7 @@ public enum ThreadContextEnum {
 	public Object getVal() {
 		return threadLocal.get();
 	}
-	
+
 	/**
 	 * 设置上下文数据
 	 * 
