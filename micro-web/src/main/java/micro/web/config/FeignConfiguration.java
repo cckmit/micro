@@ -49,12 +49,12 @@ public class FeignConfiguration {
 		return new OptionalDecoder(new ResponseEntityDecoder(new SpringDecoder(this.messageConverters) {
 			@Override
 			public Object decode(Response response, Type type) throws IOException, FeignException {
-				ThreadContextEnum.HEADER.setVal(response.headers());
+				ThreadContextEnum.RESP_HEADER.setVal(response.headers());
 				return super.decode(response, type);
 			}
 		}));
 	}
-	
+
 	/**
 	 * Feign拦截器
 	 * 
@@ -64,4 +64,15 @@ public class FeignConfiguration {
 	public FeignBasicAuthRequestInterceptor basicAuthRequestInterceptor() {
 		return new FeignBasicAuthRequestInterceptor();
 	}
+
+	/**
+	 * traceId 过滤器
+	 * 
+	 * @author gewx
+	 **/
+	@Bean
+	public TraceFilter traceFilter() {
+		return new TraceFilter();
+	}
+
 }
