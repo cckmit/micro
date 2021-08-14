@@ -251,35 +251,25 @@
 				</configuration>
 			</plugin>
 			
+			<!--
+				默认latest
+				<tag>${project.version}</tag> 
+			-->
+			<!-- 
 			<plugin>
 				<groupId>com.spotify</groupId>
 				<artifactId>dockerfile-maven-plugin</artifactId>
 				<version>${dockerfile-maven-version}</version>
-				<!-- 
-				默认绑定构建阶段
-				<executions>
-					<execution>
-						<id>default</id>
-						<goals>
-							<goal>build</goal>
-							<goal>push</goal>
-						</goals>
-					</execution>
-				</executions>
-				 -->
 				<configuration>
                     <username>zj-server</username>
                     <password>password</password>
 					<repository>registry.portzj.com/psys-business</repository>
-					<!--
-					默认latest
-					<tag>${project.version}</tag> 
-					 -->
 					<buildArgs>
 						<JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
 					</buildArgs>
 				</configuration>
 			</plugin>
+			 -->
 		</plugins>
 
 		<resources>
