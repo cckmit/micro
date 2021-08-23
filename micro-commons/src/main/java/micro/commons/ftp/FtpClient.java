@@ -1,6 +1,7 @@
 package micro.commons.ftp;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -16,7 +17,7 @@ import micro.commons.annotation.ThreadSafe;
  **/
 
 @ThreadSafe
-public final class FtpClient {
+public final class FtpClient implements Closeable {
 
 	private final FTPClient ftp;
 
@@ -35,20 +36,13 @@ public final class FtpClient {
 	 * @return void
 	 **/
 	public void storeFile(String fileName, InputStream stream, String directory) throws IOException {
-		try {
-			boolean isDirectory = ftp.changeWorkingDirectory(directory);
-			if (!isDirectory) {
-				throw new RuntimeException("文件上传失败,不存在的目录!");
-			}
-			boolean isUpload = ftp.storeFile(fileName, stream);
-			if (!isUpload) {
-				throw new RuntimeException("文件上传失败!");
-			}
-		} finally {
-			if (ftp.isConnected()) {
-				ftp.logout();
-				ftp.disconnect();
-			}
+		boolean isDirectory = ftp.changeWorkingDirectory(directory);
+		if (!isDirectory) {
+			throw new RuntimeException("文件上传失败,不存在的目录!");
+		}
+		boolean isUpload = ftp.storeFile(fileName, stream);
+		if (!isUpload) {
+			throw new RuntimeException("文件上传失败!");
 		}
 	}
 
@@ -62,23 +56,16 @@ public final class FtpClient {
 	 * @return void
 	 **/
 	public String readFile(String fileName, String directory) throws IOException {
-		try {
-			boolean isDirectory = ftp.changeWorkingDirectory(directory);
-			if (!isDirectory) {
-				throw new RuntimeException("文件上传失败,不存在的目录!");
-			}
-			ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-			boolean isDownload = ftp.retrieveFile(fileName, byteOut);
-			if (!isDownload) {
-				throw new RuntimeException("文件读取失败!");
-			}
-			return byteOut.toString("utf-8");
-		} finally {
-			if (ftp.isConnected()) {
-				ftp.logout();
-				ftp.disconnect();
-			}
+		boolean isDirectory = ftp.changeWorkingDirectory(directory);
+		if (!isDirectory) {
+			throw new RuntimeException("文件上传失败,不存在的目录!");
 		}
+		ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+		boolean isDownload = ftp.retrieveFile(fileName, byteOut);
+		if (!isDownload) {
+			throw new RuntimeException("文件读取失败!");
+		}
+		return byteOut.toString("utf-8");
 	}
 
 	/**
@@ -186,18 +173,26 @@ public final class FtpClient {
 				ftp.connect(this.ip, this.port);
 				if (!FTPReply.isPositiveCompletion(ftp.getReplyCode())) {
 					ftp.disconnect();
-					throw new RuntimeException("Ftp Connection Fail!");
+					throw new RuntimeException("ftp客户端连接失败!");
 				}
 				ftp.setFileType(FTPClient.BINARY_FILE_TYPE);
 				boolean isLogin = ftp.login(this.userName, this.password);
 				if (!FTPReply.isPositiveCompletion(ftp.getReplyCode()) || !isLogin) {
 					ftp.disconnect();
-					throw new RuntimeException("Ftp Login Fail!");
+					throw new RuntimeException("ftp客户端登录失败!");
 				}
 				return new FtpClient(ftp);
 			} catch (Exception ex) {
-				throw new RuntimeException("Ftp客户端构建失败, ex: " + ex.getMessage());
+				throw new RuntimeException("ftp客户端构建失败, ex: " + ex.getMessage());
 			}
+		}
+	}
+
+	@Override
+	public void close() throws IOException {
+		if (ftp.isConnected()) {
+			ftp.logout();
+			ftp.disconnect();
 		}
 	}
 }
