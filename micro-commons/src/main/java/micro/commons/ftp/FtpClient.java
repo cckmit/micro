@@ -6,6 +6,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
@@ -164,6 +167,40 @@ public final class FtpClient implements Closeable {
 		boolean isDel = ftp.deleteFile(fileName);
 		if (!isDel) {
 			throw new RuntimeException("文件删除失败!");
+		}
+	}
+
+	/**
+	 * 读取指定目录下ftp文件
+	 * 
+	 * @author gewx
+	 * @param directory 文件存储目录
+	 * @throws IOException
+	 * @return 文件集合
+	 **/
+	public List<String> listFile(String directory) throws IOException {
+		if (isNotBlank(directory)) {
+			if (!ftp.changeWorkingDirectory(directory)) {
+				throw new RuntimeException("文件读取失败,不存在的目录!");
+			}
+		}
+
+		List<String> fileList = Stream.of(ftp.listFiles()).map(val -> val.getName()).collect(Collectors.toList());
+		return fileList;
+	}
+
+	/**
+	 * 变更ftp目录
+	 * 
+	 * @author gewx
+	 * @param directory 文件存储目录
+	 * @throws IOException
+	 * @return void
+	 **/
+	public void changeWorkingDirectory(String directory) throws IOException {
+		boolean isChange = ftp.changeWorkingDirectory(directory);
+		if (!isChange) {
+			throw new RuntimeException("文件目录切换失败!");
 		}
 	}
 
