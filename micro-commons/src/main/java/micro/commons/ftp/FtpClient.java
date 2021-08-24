@@ -1,5 +1,7 @@
 package micro.commons.ftp;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
@@ -19,6 +21,26 @@ import micro.commons.annotation.ThreadSafe;
 @ThreadSafe
 public final class FtpClient implements Closeable {
 
+	/**
+	 * ftp连接超时
+	 **/
+	private static final int FTP_CONNECT_TIMEOUT = 1000 * 15;
+
+	/**
+	 * ftp连接报活超时
+	 **/
+	private static final int FTP_KEEPALIVE_TIMEOUT = -1;
+
+	/**
+	 * ftp读写缓冲区
+	 **/
+	private static final int FTP_BUFFER_SIZE = 1024 * 1024;
+
+	/**
+	 * ftp数据传输编码
+	 **/
+	private static final String CHARSET = "utf-8";
+
 	private final FTPClient ftp;
 
 	private FtpClient(FTPClient ftp) {
@@ -36,14 +58,28 @@ public final class FtpClient implements Closeable {
 	 * @return void
 	 **/
 	public void storeFile(String fileName, InputStream stream, String directory) throws IOException {
-		boolean isDirectory = ftp.changeWorkingDirectory(directory);
-		if (!isDirectory) {
-			throw new RuntimeException("文件上传失败,不存在的目录!");
+		if (isNotBlank(directory)) {
+			if (!ftp.changeWorkingDirectory(directory)) {
+				throw new RuntimeException("文件上传失败,不存在的目录!");
+			}
 		}
 		boolean isUpload = ftp.storeFile(fileName, stream);
 		if (!isUpload) {
 			throw new RuntimeException("文件上传失败!");
 		}
+	}
+
+	/**
+	 * 上传ftp文件
+	 * 
+	 * @author gewx
+	 * @param fileName 上传文件名
+	 * @param stream   输入字节流
+	 * @throws IOException
+	 * @return void
+	 **/
+	public void storeFile(String fileName, InputStream stream) throws IOException {
+		storeFile(fileName, stream, null);
 	}
 
 	/**
@@ -53,19 +89,107 @@ public final class FtpClient implements Closeable {
 	 * @param fileName  读取文件名
 	 * @param directory 文件存储目录
 	 * @throws IOException
-	 * @return void
+	 * @return 文件字符串
 	 **/
 	public String readFile(String fileName, String directory) throws IOException {
-		boolean isDirectory = ftp.changeWorkingDirectory(directory);
-		if (!isDirectory) {
-			throw new RuntimeException("文件上传失败,不存在的目录!");
+		if (isNotBlank(directory)) {
+			if (!ftp.changeWorkingDirectory(directory)) {
+				throw new RuntimeException("文件上传失败,不存在的目录!");
+			}
 		}
 		ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
 		boolean isDownload = ftp.retrieveFile(fileName, byteOut);
 		if (!isDownload) {
 			throw new RuntimeException("文件读取失败!");
 		}
-		return byteOut.toString("utf-8");
+		return byteOut.toString(CHARSET);
+	}
+
+	/**
+	 * 读取ftp文件
+	 * 
+	 * @author gewx
+	 * @param fileName 读取文件名
+	 * @throws IOException
+	 * @return 文件字符串
+	 **/
+	public String readFile(String fileName) throws IOException {
+		return readFile(fileName, null);
+	}
+
+	/**
+	 * 读取ftp文件
+	 * 
+	 * @author gewx
+	 * @param fileName  读取文件名
+	 * @param directory 文件存储目录
+	 * @throws IOException
+	 * @return 文件字节流
+	 **/
+	public byte[] readFileToByte(String fileName, String directory) throws IOException {
+		if (isNotBlank(directory)) {
+			if (!ftp.changeWorkingDirectory(directory)) {
+				throw new RuntimeException("文件上传失败,不存在的目录!");
+			}
+		}
+		ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+		boolean isDownload = ftp.retrieveFile(fileName, byteOut);
+		if (!isDownload) {
+			throw new RuntimeException("文件读取失败!");
+		}
+		return byteOut.toByteArray();
+	}
+
+	/**
+	 * 读取ftp文件
+	 * 
+	 * @author gewx
+	 * @param fileName 读取文件名
+	 * @throws IOException
+	 * @return 文件字节流
+	 **/
+	public byte[] readFileToByte(String fileName) throws IOException {
+		return readFileToByte(fileName, null);
+	}
+
+	/**
+	 * 删除ftp文件
+	 * 
+	 * @author gewx
+	 * @param fileName 删除文件名
+	 * @throws IOException
+	 * @return void
+	 **/
+	public void deleteFile(String fileName) throws IOException {
+		boolean isDel = ftp.deleteFile(fileName);
+		if (!isDel) {
+			throw new RuntimeException("文件删除失败!");
+		}
+	}
+
+	/**
+	 * 返回文件夹上一级目录
+	 * 
+	 * @author gewx
+	 * @throws IOException
+	 * @return void
+	 **/
+	public void changeToParentDirectory() throws IOException {
+		boolean isChange = ftp.changeToParentDirectory();
+		if (!isChange) {
+			throw new RuntimeException("文件目录切换失败!");
+		}
+	}
+
+	/**
+	 * 获取当前ftp工作目录
+	 * 
+	 * @author gewx
+	 * @throws IOException
+	 * @return 当前目录
+	 **/
+	public String getDirectory() throws IOException {
+		return ftp.printWorkingDirectory();
 	}
 
 	/**
@@ -164,11 +288,11 @@ public final class FtpClient implements Closeable {
 		public FtpClient build() {
 			try {
 				FTPClient ftp = new FTPClient();
-				ftp.setControlKeepAliveTimeout(-1);
-				ftp.setControlKeepAliveReplyTimeout(-1);
-				ftp.setConnectTimeout(1000 * 15);
-				ftp.setControlEncoding("utf-8");
-				ftp.setBufferSize(1024 * 1024);
+				ftp.setControlKeepAliveTimeout(FTP_KEEPALIVE_TIMEOUT);
+				ftp.setControlKeepAliveReplyTimeout(FTP_KEEPALIVE_TIMEOUT);
+				ftp.setConnectTimeout(FTP_CONNECT_TIMEOUT);
+				ftp.setControlEncoding(CHARSET);
+				ftp.setBufferSize(FTP_BUFFER_SIZE);
 				ftp.enterLocalPassiveMode();
 				ftp.connect(this.ip, this.port);
 				if (!FTPReply.isPositiveCompletion(ftp.getReplyCode())) {
