@@ -35,6 +35,7 @@
 		<commons.collections4.version>4.4</commons.collections4.version>
 	    <google.zxing.version>3.4.1</google.zxing.version>
 	    <commons.net.version>3.8.0</commons.net.version>
+	    <jdom2.version>2.0.6</jdom2.version>
 	</properties>
 
 	<dependencyManagement>
@@ -162,7 +163,13 @@
 				<artifactId>commons-pool2</artifactId>
 				<version>${commons-pool2}</version>
 			</dependency>
-
+			
+			<dependency>
+				<groupId>org.jdom</groupId>
+				<artifactId>jdom2</artifactId>
+				<version>${jdom2.version}</version>
+			</dependency>
+		
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-collections4</artifactId>
