@@ -132,4 +132,29 @@ public final class StringUtil {
 		}
 	}
 
+	/**
+	 * 首字符大写(基于ascii表)
+	 * 
+	 * @author gewx
+	 * @param val 字符
+	 * @return 大写字符串
+	 **/
+	public static String firstStrUpperCase(String val) {
+		char[] cs = val.toCharArray();
+		cs[0] -= 32;
+		return String.valueOf(cs);
+	}
+
+	/**
+	 * 首字符小写(基于ascii表)
+	 * 
+	 * @author gewx
+	 * @param val 字符
+	 * @return 大写字符串
+	 **/
+	public static String firstStrLowerCase(String val) {
+		char[] cs = val.toCharArray();
+		cs[0] += 32;
+		return String.valueOf(cs);
+	}
 }
