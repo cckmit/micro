@@ -57,6 +57,21 @@ public final class SMBClient {
 	}
 
 	/**
+	 * 新建目录
+	 * 
+	 * @author gewx
+	 * @param subPath 目录名
+	 * @throws IOException
+	 * @return void
+	 **/
+	public void mkdir(String subPath) throws IOException {
+		SmbFile remoteFile = new SmbFile(path + subPath, ntlmPasswordAuthentication);
+		if (!remoteFile.exists()) {
+			remoteFile.mkdir();
+		}
+	}
+
+	/**
 	 * 上传文件
 	 * 
 	 * @author gewx
