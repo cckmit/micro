@@ -230,6 +230,21 @@ public final class FtpClient implements Closeable {
 	}
 
 	/**
+	 * 新增目录
+	 * 
+	 * @author gewx
+	 * @param directory 目录
+	 * @throws IOException
+	 * @return 当前目录
+	 **/
+	public void mkdir(String directory) throws IOException {
+		boolean isMkdir = ftp.makeDirectory(directory);
+		if (!isMkdir) {
+			throw new RuntimeException("新增目录失败!");
+		}
+	}
+	
+	/**
 	 * 获取构建器
 	 * 
 	 * @author gewx
