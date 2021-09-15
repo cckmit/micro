@@ -20,6 +20,7 @@ import micro.commons.util.ValidatorUtils;
 
 /**
  * SMB协议客户端,jsifs仅支持SMB1,而不支持SMB2/SMB3
+ * jcifs需要手工安装到Maven私服
  * 
  * @author gewx
  **/
