@@ -19,7 +19,7 @@ import micro.commons.exception.BusinessRuntimeException;
 import micro.commons.util.ValidatorUtils;
 
 /**
- * SMB协议客户端
+ * SMB协议客户端,jsifs仅支持SMB1,而不支持SMB2/SMB3
  * 
  * @author gewx
  **/
