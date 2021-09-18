@@ -32,7 +32,7 @@ public final class FtpClient implements Closeable {
 	/**
 	 * ftp连接报活超时
 	 **/
-	private static final int FTP_KEEPALIVE_TIMEOUT = -1;
+	private static final int FTP_KEEPALIVE_TIMEOUT = 1000;
 
 	/**
 	 * ftp读写缓冲区
@@ -243,7 +243,7 @@ public final class FtpClient implements Closeable {
 			throw new RuntimeException("新增目录失败!");
 		}
 	}
-	
+
 	/**
 	 * 获取构建器
 	 * 
@@ -341,7 +341,6 @@ public final class FtpClient implements Closeable {
 			try {
 				FTPClient ftp = new FTPClient();
 				ftp.setControlKeepAliveTimeout(FTP_KEEPALIVE_TIMEOUT);
-				ftp.setControlKeepAliveReplyTimeout(FTP_KEEPALIVE_TIMEOUT);
 				ftp.setConnectTimeout(FTP_CONNECT_TIMEOUT);
 				ftp.setControlEncoding(CHARSET);
 				ftp.setBufferSize(FTP_BUFFER_SIZE);
