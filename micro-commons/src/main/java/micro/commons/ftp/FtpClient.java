@@ -365,9 +365,11 @@ public final class FtpClient implements Closeable {
 
 	@Override
 	public void close() throws IOException {
-		if (ftp.isConnected()) {
+		try {
 			ftp.logout();
 			ftp.disconnect();
+		} catch (Exception ex) {
+
 		}
 	}
 }
