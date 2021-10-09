@@ -1,7 +1,6 @@
 package micro.commons.util;
 
 import net.sourceforge.pinyin4j.PinyinHelper;
-
 import org.apache.commons.lang3.StringUtils;
 
 import micro.commons.annotation.ThreadSafe;
@@ -9,6 +8,7 @@ import micro.commons.annotation.ThreadSafe;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -26,6 +26,8 @@ public final class PinYin4jUtils {
 	private static final Pattern PATTERN_CN_ZH = Pattern.compile("[\\u4E00-\\u9FA5]+");
 
 	private static final Pattern PATTERN_NUMBER = Pattern.compile("\\d");
+
+	private static final Pattern PATTERN_BLANK = Pattern.compile("\\s*|\t|\r|\n");
 
 	/**
 	 * 中文转拼音数组
@@ -66,7 +68,8 @@ public final class PinYin4jUtils {
 	 * @return 拼音数值
 	 **/
 	public static String convertCnzhToPinYinVal(String zh) {
-		String[] valArray = convertCnzhToPinYinArray(zh);
+		Matcher matcher = PATTERN_BLANK.matcher(zh);
+		String[] valArray = convertCnzhToPinYinArray(matcher.replaceAll(StringUtils.EMPTY));
 		return Stream.of(valArray).map(val -> {
 			return Character.toString(val.charAt(0));
 		}).collect(Collectors.joining());
@@ -87,5 +90,18 @@ public final class PinYin4jUtils {
 		} else {
 			return zh;
 		}
+	}
+
+	/**
+	 * 判断字符串是否拼音
+	 *
+	 * @param string
+	 * @return
+	 */
+	public static boolean isPinyin(String string) {
+		if (StringUtils.isBlank(string)) {
+			return false;
+		}
+		return string.toUpperCase().chars().noneMatch(val -> val < 65 || val > 90);
 	}
 }
