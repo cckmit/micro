@@ -2,15 +2,21 @@ package micro.commons.page;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
- * 分页工具类
+ * 分页数据结构
  * 
  * @author gewx
  **/
-@Data
+
+@Setter
+@Getter
+@ToString
 public final class Pages<T> implements Serializable {
 
 	private static final long serialVersionUID = 6677852537002542077L;
@@ -39,4 +45,9 @@ public final class Pages<T> implements Serializable {
 	 * 当前页数据集
 	 **/
 	private List<T> pages;
+
+	/**
+	 * 额外数据(譬如：统计汇总等)
+	 **/
+	private Map<String, Object> extraData;
 }
