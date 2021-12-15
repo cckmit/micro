@@ -71,7 +71,6 @@ public class DemoServiceImpl implements DemoService {
 		PageParameter parameter = new PageParameter();
 		parameter.setStartpage(1);
 		parameter.setPagesize(20);
-		parameter.setSortname("id ;DROP TABLE tt; SELECT 1 FROM DUAL ORDER BY 1");
 
 		Pages<User> pages = PageHelperUtils.limit(parameter, () -> {
 			return demoDao.listUser(1024L);

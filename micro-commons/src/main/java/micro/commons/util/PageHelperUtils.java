@@ -1,28 +1,23 @@
 package micro.commons.util;
 
-import static org.apache.commons.lang3.StringUtils.*;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
+import java.util.Map;
 import java.util.function.Supplier;
-
-import org.apache.commons.collections.CollectionUtils;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 
-import micro.commons.annotation.ThreadSafe;
 import micro.commons.exception.BusinessRuntimeException;
 import micro.commons.page.PageParameter;
 import micro.commons.page.Pages;
 
 /**
- * 分页工具类,基于PageHelper
+ * 通用分页工具类,基于PageHelper
  * 
  * @author gewx
  **/
-@ThreadSafe
 public final class PageHelperUtils {
-
-	private static int ZERO = 0;
 
 	/**
 	 * 通用分页方法
@@ -30,28 +25,14 @@ public final class PageHelperUtils {
 	 * @author gewx
 	 * @param parameter  分页参数
 	 * @param pageResult 分页数据集
-	 * @return void
+	 * @return 分页结果集
 	 **/
 	public static <T> Pages<T> limit(PageParameter parameter, Supplier<Page<T>> pageResult) {
-		if (parameter.getStartpage() == null) {
-			throw new BusinessRuntimeException("页码必填");
-		}
-
-		if (parameter.getPagesize() == null) {
-			throw new BusinessRuntimeException("页行必填");
-		}
-
-		if (parameter.getPagesize().intValue() == ZERO) {
-			throw new BusinessRuntimeException("页行必须大于0");
+		if (parameter.getStartpage() == 0 || parameter.getPagesize() == 0) {
+			throw new BusinessRuntimeException("页码、页行必须大于0");
 		}
 
 		PageHelper.startPage(parameter.getStartpage(), parameter.getPagesize());
-		if (isNotBlank(parameter.getSortname())) {
-			PageHelper.orderBy(parameter.getSortname());
-			if (parameter.isSymbol()) {
-				PageHelper.orderBy(parameter.getSortname() + " DESC");
-			}
-		}
 
 		Page<T> page = pageResult.get();
 		Pages<T> pages = new Pages<T>();
@@ -60,6 +41,22 @@ public final class PageHelperUtils {
 		pages.setPageNum(page.getPageNum());
 		pages.setPageSize(page.getPageSize());
 		pages.setPages(page.getResult());
+		return pages;
+	}
+
+	/**
+	 * 通用分页方法
+	 * 
+	 * @author gewx
+	 * @param parameter  分页参数
+	 * @param pageResult 分页数据集
+	 * @param extraData  附属数据
+	 * @return 分页结果集
+	 **/
+	public static <T> Pages<T> limit(PageParameter parameter, Supplier<Page<T>> pageResult,
+			Supplier<Map<String, Object>> extraData) {
+		Pages<T> pages = limit(parameter, pageResult);
+		pages.setExtraData(extraData.get());
 		return pages;
 	}
 
@@ -77,6 +74,6 @@ public final class PageHelperUtils {
 
 		PageHelper.startPage(parameter.getStartpage(), parameter.getPagesize(), false);
 
-		return CollectionUtils.isNotEmpty(pageResult.get());
+		return isNotEmpty(pageResult.get());
 	}
 }
