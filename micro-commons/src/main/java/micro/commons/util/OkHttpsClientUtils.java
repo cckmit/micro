@@ -5,11 +5,15 @@ import okhttp3.*;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509TrustManager;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import micro.commons.exception.BusinessRuntimeException;
 
@@ -46,17 +50,43 @@ public final class OkHttpsClientUtils {
 	}
 
 	/**
+	 * 发送get请求
+	 * 
+	 * @param url    请求地址
+	 * @param header 请求头列表
+	 * @throws IOException 抛出异常
+	 * @return 响应值
+	 */
+	@SuppressWarnings("unchecked")
+	public static String getJson(String url, Pair<String, String>... header) throws IOException {
+		Request.Builder builder = new Request.Builder();
+		for (Pair<String, String> pair : header) {
+			builder = builder.addHeader(pair.getKey(), pair.getValue());
+		}
+		Request request = builder.url(url).build();
+		try (Response response = client.newCall(request).execute()) {
+			return response.body().string();
+		}
+	}
+
+	/**
 	 * 发送POST请求
 	 * 
 	 * @author gewx
-	 * @param url  请求地址
-	 * @param json 请求数据
+	 * @param url    请求地址
+	 * @param json   请求数据
+	 * @param header 请求头列表
 	 * @throws IOException 抛出异常
 	 * @return 响应值
 	 **/
-	public static String postJson(String url, String json) throws IOException {
+	@SuppressWarnings("unchecked")
+	public static String postJson(String url, String json, Pair<String, String>... header) throws IOException {
+		Request.Builder builder = new Request.Builder();
+		for (Pair<String, String> pair : header) {
+			builder = builder.addHeader(pair.getKey(), pair.getValue());
+		}
 		RequestBody body = RequestBody.create(JSON, json);
-		Request request = new Request.Builder().url(url).post(body).build();
+		Request request = builder.url(url).post(body).build();
 		try (Response response = client.newCall(request).execute()) {
 			return response.body().string();
 		}
@@ -79,18 +109,28 @@ public final class OkHttpsClientUtils {
 		}
 	}
 
-	// 构建https连接
+	/**
+	 * 发送HEAD请求
+	 * 
+	 * @author gewx
+	 * @param url 请求地址
+	 * @throws IOException 抛出异常
+	 * @return 响应值
+	 **/
+	public static Map<String, List<String>> head(String url) throws IOException {
+		Request request = new Request.Builder().url(url).build();
+		try (Response response = client.newCall(request).execute()) {
+			Headers headers = response.headers();
+			return headers.toMultimap();
+		}
+	}
+
 	private static OkHttpClient initSSLClient() {
 		try {
 			SSLContext sslContext = SSLContext.getInstance("TLS");
-			
-			// 使用 X509TrustManager 初始化 SSLContext
 			X509TrustManagerVerify x509TrustManagerVerify = new X509TrustManagerVerify();
 			sslContext.init(null, new X509TrustManagerVerify[] { x509TrustManagerVerify }, null);
-			
-			// 使用 SSLContext 创建 SSLSocketFactory
 			SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
-			
 			OkHttpClient client = new OkHttpClient.Builder().sslSocketFactory(sslSocketFactory, x509TrustManagerVerify)
 					.readTimeout(30, TimeUnit.SECONDS).build();
 			return client;
@@ -98,8 +138,7 @@ public final class OkHttpsClientUtils {
 			throw new BusinessRuntimeException("OkHttp构建异常，ex: " + e.getMessage());
 		}
 	}
-	
-	// 自定义使用X509TrustManager信任所有证书
+
 	private static class X509TrustManagerVerify implements X509TrustManager {
 		@Override
 		public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
@@ -116,5 +155,4 @@ public final class OkHttpsClientUtils {
 			return new X509Certificate[0];
 		}
 	}
-	
 }

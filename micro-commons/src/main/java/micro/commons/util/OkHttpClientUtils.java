@@ -3,7 +3,10 @@ package micro.commons.util;
 import okhttp3.*;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
@@ -44,8 +47,8 @@ public final class OkHttpClientUtils {
 	 * 
 	 * @param url    请求地址
 	 * @param header 请求头列表
-	 * @return 响应值
 	 * @throws IOException 抛出异常
+	 * @return 响应值
 	 */
 	@SuppressWarnings("unchecked")
 	public static String getJson(String url, Pair<String, String>... header) throws IOException {
@@ -96,6 +99,22 @@ public final class OkHttpClientUtils {
 		Request request = new Request.Builder().url(url).post(body).build();
 		try (Response response = client.newCall(request).execute()) {
 			return response.body().string();
+		}
+	}
+
+	/**
+	 * 发送HEAD请求
+	 * 
+	 * @author gewx
+	 * @param url 请求地址
+	 * @throws IOException 抛出异常
+	 * @return 响应值
+	 **/
+	public static Map<String, List<String>> head(String url) throws IOException {
+		Request request = new Request.Builder().url(url).build();
+		try (Response response = client.newCall(request).execute()) {
+			Headers headers = response.headers();
+			return headers.toMultimap();
 		}
 	}
 }
