@@ -82,12 +82,7 @@
 			<groupId>org.jdom</groupId>
 			<artifactId>jdom2</artifactId>
 		</dependency>
-		
-		<dependency>
-		    <groupId>org.samba</groupId>
-		    <artifactId>jcifs</artifactId>
-		</dependency>
-
+	
 		<dependency>
 			<groupId>cn.hutool</groupId>
 			<artifactId>hutool-all</artifactId>
