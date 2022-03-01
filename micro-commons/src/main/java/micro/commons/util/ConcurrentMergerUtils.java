@@ -40,6 +40,19 @@ public final class ConcurrentMergerUtils {
 	}
 
 	/**
+	 * 归并计算调整核心线程与最大线程
+	 * 
+	 * @author gewx
+	 * @param coreNum 核心线程数
+	 * @param maxNum  最大线程数
+	 **/
+	public static void init(int coreNum, int maxNum) {
+		POOLTASKEXECUTOR.setCorePoolSize(coreNum);
+		POOLTASKEXECUTOR.setMaxPoolSize(maxNum);
+		POOLTASKEXECUTOR.getThreadPoolExecutor().prestartAllCoreThreads();
+	}
+
+	/**
 	 * 归并计算
 	 * 
 	 * @author gewx
@@ -140,7 +153,6 @@ public final class ConcurrentMergerUtils {
 	 * 
 	 * @author gewx
 	 * @param task 任务集合
-	 * @return 归并结果
 	 **/
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void calculate(Runnable... task) {
