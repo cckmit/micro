@@ -37,7 +37,7 @@
 		<commons.net.version>3.8.0</commons.net.version>
 		<jdom2.version>2.0.6</jdom2.version>
 		<hutool.version>5.2.5</hutool.version>
-        <okhttp.version>4.9.3</okhttp.version>
+		<okhttp.version>4.9.3</okhttp.version>
 	</properties>
 
 	<dependencyManagement>
@@ -225,7 +225,7 @@
 		<dependency>
 			<groupId>jakarta.validation</groupId>
 			<artifactId>jakarta.validation-api</artifactId>
-			<version>2.0.2</version><!--$NO-MVN-MAN-VER$ -->
+			<version>2.0.2</version> <!--$NO-MVN-MAN-VER$ -->
 		</dependency>
 
 		<dependency>
@@ -255,7 +255,7 @@
 		<dependency>
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp</artifactId>
-			<version>${okhttp.version}</version>
+			<version>${okhttp.version}</version> <!--$NO-MVN-MAN-VER$ -->
 		</dependency>
 
 		<dependency>
@@ -280,11 +280,21 @@
 			</plugin>
 
 			<!-- 默认latest <tag>${project.version}</tag> -->
-			<!-- <plugin> <groupId>com.spotify</groupId> <artifactId>dockerfile-maven-plugin</artifactId> 
-				<version>${dockerfile-maven-version}</version> <configuration> <username>zj-server</username> 
-				<password>password</password> <repository>registry.portzj.com/psys-business</repository> 
-				<buildArgs> <JAR_FILE>${project.build.finalName}.jar</JAR_FILE> </buildArgs> 
-				</configuration> </plugin> -->
+			<!-- 
+			<plugin>
+				<groupId>com.spotify</groupId>
+				<artifactId>dockerfile-maven-plugin</artifactId>
+				<version>${dockerfile-maven-version}</version>
+				<configuration>
+					<username>zj-server</username>
+					<password>password</password>
+					<repository>registry.portzj.com/psys-business</repository>
+					<buildArgs>
+						<JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
+					</buildArgs>
+				</configuration>
+			</plugin>
+			 -->
 		</plugins>
 
 		<resources>
