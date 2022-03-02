@@ -46,7 +46,7 @@ public final class ConcurrentMergerUtils {
 	 * @param coreNum 核心线程数
 	 * @param maxNum  最大线程数
 	 **/
-	public static void init(int coreNum, int maxNum) {
+	public static void resize(int coreNum, int maxNum) {
 		POOLTASKEXECUTOR.setCorePoolSize(coreNum);
 		POOLTASKEXECUTOR.setMaxPoolSize(maxNum);
 		POOLTASKEXECUTOR.getThreadPoolExecutor().prestartAllCoreThreads();
