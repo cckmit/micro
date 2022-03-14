@@ -22,7 +22,7 @@ import micro.commons.exception.ConcurrentMergerException;
  * 
  * @author gewx
  **/
-public final class ConcurrentMergerUtils {
+public final class ConcurrentMergeUtils {
 
 	private static final int CORE_SIZE = Runtime.getRuntime().availableProcessors();
 
