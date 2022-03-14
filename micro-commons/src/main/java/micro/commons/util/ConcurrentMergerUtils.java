@@ -1,9 +1,9 @@
 package micro.commons.util;
 
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
+import static java.util.Collections.emptyList;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -63,7 +63,7 @@ public final class ConcurrentMergerUtils {
 	 **/
 	public static <T, R> List<R> calculate(Function<List<T>, R> execute, List<T> result, int depth) {
 		if (isEmpty(result)) {
-			return Collections.emptyList();
+			return emptyList();
 		}
 
 		int taskCount = result.size() / depth;
