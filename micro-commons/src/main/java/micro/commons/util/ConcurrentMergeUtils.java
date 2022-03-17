@@ -39,15 +39,6 @@ public final class ConcurrentMergeUtils {
         POOLTASKEXECUTOR.getThreadPoolExecutor().prestartAllCoreThreads();
     }
 
-    @Setter
-    @Getter
-    public static class InnerResult<R> {
-
-        private Integer index;
-
-        private R result;
-    }
-
     /**
      * 归并计算调整核心线程与最大线程
      *
@@ -82,7 +73,7 @@ public final class ConcurrentMergeUtils {
 
         AtomicInteger downCount = new AtomicInteger(taskCount);
         AtomicBoolean mark = new AtomicBoolean(true);
-		AtomicReference<String> ex = new AtomicReference<>();
+        AtomicReference<String> ex = new AtomicReference<>();
         List<R> mergeList = new ArrayList<>(taskCount * 2);
 
         IntStream.range(0, taskCount).forEach(val -> {
@@ -99,7 +90,7 @@ public final class ConcurrentMergeUtils {
                 mergeList.add(r);
                 downCount.decrementAndGet();
             }, thx -> {
-				ex.set(thx.getMessage());
+                ex.set(thx.getMessage());
                 mark.set(false);
             });
         });
@@ -126,7 +117,7 @@ public final class ConcurrentMergeUtils {
     public static <R> List<R> calculate(Callable<R>... task) {
         AtomicInteger downCount = new AtomicInteger(task.length);
         AtomicBoolean mark = new AtomicBoolean(true);
-		AtomicReference<String> ex = new AtomicReference<>();
+        AtomicReference<String> ex = new AtomicReference<>();
         List<R> mergeList = new ArrayList<>(task.length * 2);
 
         IntStream.range(0, task.length).forEach(index -> {
@@ -141,7 +132,7 @@ public final class ConcurrentMergeUtils {
                 mergeList.add(r);
                 downCount.decrementAndGet();
             }, thx -> {
-				ex.set(thx.getMessage());
+                ex.set(thx.getMessage());
                 mark.set(false);
             });
         });
@@ -168,7 +159,7 @@ public final class ConcurrentMergeUtils {
     public static <R> List<R> naturalOrderCalculate(Callable<R>... task) {
         AtomicInteger downCount = new AtomicInteger(task.length);
         AtomicBoolean mark = new AtomicBoolean(true);
-		AtomicReference<String> ex = new AtomicReference<>();
+        AtomicReference<String> ex = new AtomicReference<>();
         List<InnerResult<R>> mergeList = new ArrayList<>(task.length * 2);
 
         IntStream.range(0, task.length).forEach(index -> {
@@ -187,7 +178,7 @@ public final class ConcurrentMergeUtils {
                 mergeList.add(r);
                 downCount.decrementAndGet();
             }, thx -> {
-				ex.set(thx.getMessage());
+                ex.set(thx.getMessage());
                 mark.set(false);
             });
         });
@@ -215,7 +206,7 @@ public final class ConcurrentMergeUtils {
     public static void calculate(Runnable... task) {
         AtomicInteger downCount = new AtomicInteger(task.length);
         AtomicBoolean mark = new AtomicBoolean(true);
-		AtomicReference<String> ex = new AtomicReference<>();
+        AtomicReference<String> ex = new AtomicReference<>();
 
         IntStream.range(0, task.length).forEach(index -> {
             ListenableFuture future = (ListenableFuture) POOLTASKEXECUTOR.submitListenable(() -> {
@@ -227,7 +218,7 @@ public final class ConcurrentMergeUtils {
             future.addCallback(r -> {
                 downCount.decrementAndGet();
             }, thx -> {
-				ex.set(thx.getMessage());
+                ex.set(thx.getMessage());
                 mark.set(false);
             });
         });
@@ -256,5 +247,14 @@ public final class ConcurrentMergeUtils {
             list.add(func.apply(val));
         });
         return list;
+    }
+
+    @Setter
+    @Getter
+    static class InnerResult<R> {
+
+        private Integer index;
+
+        private R result;
     }
 }
